@@ -90,7 +90,7 @@ def get_hand_type(hand: Deck) -> ScoringHand:
     return ScoringHand.HIGH_CARD
 
 def get_score(combo: Deck):
-    assert len(combo) <= 5
+    assert len(combo.cards) <= 5
     hand_type = get_hand_type(combo)
     
     # Sort hand by rank frequency first, then by rank value
