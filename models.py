@@ -26,26 +26,43 @@ class Card:
     def __init__(self, suit: Suit, rank: Rank):
         self.suit = suit
         self.rank = rank
+        self.chips = CHIPS_PER_CARD[rank]
 
     def __str__(self):
         return f"{self.rank.name} of {self.suit.name}"
     
     def __repr__(self):
         return f"Card(suit={self.suit.name}, rank={self.rank.name})"
-    
-def create_deck():
-    deck = []
-    for suit in Suit:
-        for rank in Rank:
-            deck.append(Card(suit, rank))
-    return deck
+
+    def __eq__(self, other):
+        # First check if other is actually a Card
+        if not isinstance(other, Card):
+            return False
+        # Compare both rank and suit
+        return self.rank == other.rank and self.suit == other.suit
 
 class Deck:
     def __init__(self):
-        self.cards = create_deck()
+        deck = []
+        for suit in Suit:
+            for rank in Rank:
+                deck.append(Card(suit, rank))
+        self.cards = deck
+    
+    def __init__(self, cards: list[Card]):
+        self.cards = cards
 
     def shuffle(self):
         random.shuffle(self.cards)
+
+    def discard(self, cards: list[Card]):
+        for card in cards:
+            print(card)
+            print(cards)
+            self.cards.remove(card)
+
+    def add(self, cards: list[Card]):
+        self.cards.extend(cards)
 
 class ScoringHand(Enum):
     HIGH_CARD = "high card"
@@ -60,3 +77,23 @@ class ScoringHand(Enum):
     FIVE_OF_A_KIND = "five of a kind"
     FLUSH_HOUSE = "flush house"
     FLUSH_FIVE = "flush five"
+
+class Move(Enum):
+    DISCARD = "discard"
+    PLAY = "play"
+
+CHIPS_PER_CARD = {
+    Rank.TWO: 2,
+    Rank.THREE: 3,
+    Rank.FOUR: 4,
+    Rank.FIVE: 5,
+    Rank.SIX: 6,
+    Rank.SEVEN: 7,
+    Rank.EIGHT: 8,
+    Rank.NINE: 9,
+    Rank.TEN: 10,
+    Rank.JACK: 10,
+    Rank.QUEEN: 10,
+    Rank.KING: 10,
+    Rank.ACE: 11,
+}

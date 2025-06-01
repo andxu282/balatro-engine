@@ -1,4 +1,5 @@
-from models import Card, ScoringHand
+from models import Card, Deck, ScoringHand
+from collections import Counter
 
 CHIPS_PER_HAND = {
     ScoringHand.HIGH_CARD: 5,
@@ -30,30 +31,102 @@ MULT_PER_HAND = {
     ScoringHand.FLUSH_FIVE: 16,
 }
 
-def get_hand_type(hand: list[Card]) -> ScoringHand:
+def get_hand_type(hand: Deck) -> ScoringHand:
     assert len(hand) <= 5
+    
+    # Count occurrences of each rank and suit
+    rank_counts = Counter(card.rank for card in hand.cards)
+    suit_counts = Counter(card.suit for card in hand.cards)
+    
+    # Sort ranks for checking straights
+    sorted_ranks = sorted(card.rank.value for card in hand.cards)
+    
+    # Check if hand is a flush (all same suit)
+    is_flush = len(suit_counts) == 1
+    
+    # Check if hand is a straight
+    is_straight = (len(sorted_ranks) == 5 and 
+                  sorted_ranks[-1] - sorted_ranks[0] == 4 or
+                  sorted_ranks == [2, 3, 4, 5, 14])
+    
+    # Get counts of rank occurrences
+    values = sorted(rank_counts.values(), reverse=True)
+    
+    # Check for specific hands from highest to lowest rank
+    if is_flush and is_straight:
+        return ScoringHand.STRAIGHT_FLUSH
+    
+    if values == [5]:  # Five of a kind
+        return ScoringHand.FIVE_OF_A_KIND
+        
+    if is_flush and values == [3, 2]:  # Flush house
+        return ScoringHand.FLUSH_HOUSE
+        
+    if is_flush and values == [5]:  # Flush five
+        return ScoringHand.FLUSH_FIVE
+        
+    if values == [4, 1]:  # Four of a kind
+        return ScoringHand.FOUR_OF_A_KIND
+        
+    if values == [3, 2]:  # Full house
+        return ScoringHand.FULL_HOUSE
+        
+    if is_flush:  # Regular flush
+        return ScoringHand.FLUSH
+        
+    if is_straight:  # Regular straight
+        return ScoringHand.STRAIGHT
+        
+    if values == [3, 1, 1]:  # Three of a kind
+        return ScoringHand.THREE_OF_A_KIND
+        
+    if values == [2, 2, 1]:  # Two pair
+        return ScoringHand.TWO_PAIR
+        
+    if values == [2, 1, 1, 1]:  # One pair
+        return ScoringHand.PAIR
+        
+    # If nothing else matches, it's a high card
+    return ScoringHand.HIGH_CARD
 
-def get_score(hand: list[Card]):
-    assert len(hand) <= 5
-    hand_type = get_hand_type(hand)
+def get_score(combo: Deck):
+    assert len(combo) <= 5
+    hand_type = get_hand_type(combo)
+    
+    # Sort hand by rank frequency first, then by rank value
+    # This ensures paired/matching cards are grouped together
+    rank_counts = Counter(card.rank for card in combo.cards)
+    sorted_hand = sorted(combo.cards, 
+                        key=lambda card: (-rank_counts[card.rank], -card.rank.value))
+    chips = CHIPS_PER_HAND[hand_type] 
+    mult = MULT_PER_HAND[hand_type]
 
-    # TODO: add support for pair, 2-pair, 3-of-a-kind, 4-of-a-kind
     match hand_type:
         case ScoringHand.HIGH_CARD:
-            chips = CHIPS_PER_HAND[hand_type] + hand[0].rank.value
-            mult = MULT_PER_HAND[hand_type]
-            return chips * mult
+            # Only highest card counts
+            chips += sorted_hand[0].chips
+            
         case ScoringHand.PAIR:
-            return hand[0].rank.value * 2
+            # Only the paired cards count
+            chips += sorted_hand[0].chips * 2
+            
         case ScoringHand.TWO_PAIR:
-            return hand[0].rank.value * 2 + hand[2].rank.value * 2
+            # Both pairs count separately
+            first_pair = sorted_hand[0].chips * 2
+            second_pair = sorted_hand[2].chips * 2
+            chips += first_pair + second_pair
+            
         case ScoringHand.THREE_OF_A_KIND:
-            return hand[0].rank.value * 3
-        case ScoringHand.STRAIGHT, ScoringHand.FLUSH, ScoringHand.FULL_HOUSE, ScoringHand.STRAIGHT_FLUSH, ScoringHand.FIVE_OF_A_KIND, ScoringHand.FLUSH_HOUSE, ScoringHand.FLUSH_FIVE:
-            chips = CHIPS_PER_HAND[hand_type] + sum(card.rank.value for card in hand)
-            mult = MULT_PER_HAND[hand_type]
-            return chips * mult
+            # Only the three matching cards count
+            chips += sorted_hand[0].chips * 3
+            
+        case ScoringHand.STRAIGHT, ScoringHand.FLUSH, ScoringHand.FULL_HOUSE, ScoringHand.STRAIGHT_FLUSH, ScoringHand.FLUSH_HOUSE, ScoringHand.FLUSH_FIVE:
+            chips += sum(card.chips for card in combo.cards)
+            
         case ScoringHand.FOUR_OF_A_KIND:
-            return hand[0].rank.value * 4
+            # Only the four matching cards count
+            chips += sorted_hand[0].chips * 4
         case _:
             raise ValueError(f"Invalid hand type: {hand_type}")
+        
+    return chips * mult

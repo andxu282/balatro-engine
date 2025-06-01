@@ -1,5 +1,8 @@
-from models import Card
+from models import Card, Deck, Move
 from utils import get_score
+
+def get_best_move(hand: list[Card], num_discards: int):
+    pass
 
 '''
 Returns the best set of cards to discard from a hand (up to 5 cards).
@@ -17,22 +20,58 @@ Example:
 def get_best_discard(hand: list[Card]):
     pass
 
-def get_best_move(hand: list[Card], num_discards: int):
+'''
+Returns the best set of cards to play from a hand (up to 5 cards).
+
+Parameters:
+    hand: list[Card]
+
+Returns:
+    list[Card]
+'''
+def get_best_play(hand: list[Card]):
     pass
 
-def play_round(score: int, num_hands: int, num_discards: int):
-    curr_score = 0
-    hand = []
+'''
+Simulates the engine playing a round of an ante.
+
+Parameters:
+    score: int -> the score needed to beat the blind (300 for the first round)
+    reward: int -> the amount of money you get for winning a hand (3 by default)
+    num_hands: int -> number of hands you have (4 by default)
+    num_discards: int -> number of discards you have (3 by default)
+    deck: Deck -> the deck of cards you're playing with (regular 52 card deck by default)
+    hand_size: int -> the number of cards in your hand (8 by default)
+    money: int -> the amount of money you have (0 by default)
+
+Returns:
+    int, int -> the score of the engine after the round, the amount of money you have after the round
+'''
+def play_round(score: int = 300, reward: int = 3, num_hands: int = 4, num_discards: int = 4, deck: Deck = Deck(), hand_size: int = 8, money: int = 0) -> int:
+    # your score
+    curr_score: int = 0
+    # your hand  
+    hand: list[Card] = []
     # While the player still has hands to play and the score is less than the target score
     while (num_hands > 0 and curr_score < score):
-        # Draw 8 cards from the deck
-        hand = draw_cards(deck, 8)
+        # Replenish the hand up to hand size
+        hand = draw_cards(deck, hand_size)
 
         # Does the best move (discard or play)
-        get_best_move(hand, num_discards)
+        move = get_best_move(hand, num_discards)
 
-        # Add the score to the current score
-        curr_score += get_score(hand)
+        match move:
+            case Move.DISCARD:
+                cards_to_discard = get_best_discard(hand)
+                hand = [card for card in hand if card not in cards_to_discard]
+            case Move.PLAY:
+                cards_to_play = get_best_play(hand)
+                hand = [card for card in hand if card not in cards_to_play]
+                # Add the score to the current score
+                curr_score += get_score(cards_to_play)
+                num_hands -= 1
+
+    return curr_score, money
 
 def main():
     pass
