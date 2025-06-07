@@ -1,8 +1,12 @@
 from models import Card, Deck, Move
 from utils import get_score
+from itertools import combinations
 
 def get_best_move(hand: list[Card], num_discards: int):
-    pass
+    if num_discards == 0:
+        return Move.PLAY
+    else:
+
 
 '''
 Returns the best set of cards to discard from a hand (up to 5 cards).
@@ -54,24 +58,36 @@ def play_round(score: int = 300, reward: int = 3, num_hands: int = 4, num_discar
     hand: list[Card] = []
     # While the player still has hands to play and the score is less than the target score
     while (num_hands > 0 and curr_score < score):
-        # Replenish the hand up to hand size
+        # Replenish the hand up to hand size (8 by default)
         hand = draw_cards(deck, hand_size)
 
-        # Does the best move (discard or play)
+        # Gets the best move (discard or play)
         move = get_best_move(hand, num_discards)
 
         match move:
             case Move.DISCARD:
                 cards_to_discard = get_best_discard(hand)
-                hand = [card for card in hand if card not in cards_to_discard]
+                deck.discard(cards_to_discard)
+                num_discards -= 1
             case Move.PLAY:
                 cards_to_play = get_best_play(hand)
-                hand = [card for card in hand if card not in cards_to_play]
+                deck.discard(cards_to_play)
                 # Add the score to the current score
                 curr_score += get_score(cards_to_play)
                 num_hands -= 1
 
     return curr_score, money
 
-def main():
+'''
+Simulates the engine playing an entire game.
+'''
+def play_game():
+    money = 4
+    num_hands = 4
+    num_discards = 3
+    consumable_slots = 2
+
+# Finds the highest scoring hand from a hand of cards
+def best_scoring_hand(hand: list[Card]):
     pass
+

@@ -22,6 +22,29 @@ class Rank(Enum):
     KING = 13
     ACE = 14
 
+SUIT_TO_STRING = {
+    Suit.HEARTS: "H",
+    Suit.DIAMONDS: "D",
+    Suit.CLUBS: "C",
+    Suit.SPADES: "S",
+}
+
+RANK_TO_STRING = {
+    Rank.TWO: "2",
+    Rank.THREE: "3",
+    Rank.FOUR: "4",
+    Rank.FIVE: "5",
+    Rank.SIX: "6",
+    Rank.SEVEN: "7",
+    Rank.EIGHT: "8",
+    Rank.NINE: "9",
+    Rank.TEN: "T",
+    Rank.JACK: "J",
+    Rank.QUEEN: "Q",
+    Rank.KING: "K",
+    Rank.ACE: "A",
+}
+
 class Card:
     def __init__(self, suit: Suit, rank: Rank):
         self.suit = suit
@@ -29,10 +52,10 @@ class Card:
         self.chips = CHIPS_PER_CARD[rank]
 
     def __str__(self):
-        return f"{self.rank.name} of {self.suit.name}"
+        return f"{RANK_TO_STRING[self.rank]}{SUIT_TO_STRING[self.suit]}"
     
     def __repr__(self):
-        return f"Card(suit={self.suit.name}, rank={self.rank.name})"
+        return f"Card(suit={self.suit}, rank={self.rank})"
 
     def __eq__(self, other):
         # First check if other is actually a Card
@@ -49,6 +72,9 @@ class Deck:
                 deck.append(Card(suit, rank))
         self.cards = deck
     
+    def __str__(self):
+        return ", ".join(str(card) for card in self.cards)
+    
     def __init__(self, cards: list[Card]):
         self.cards = cards
 
@@ -57,8 +83,6 @@ class Deck:
 
     def discard(self, cards: list[Card]):
         for card in cards:
-            print(card)
-            print(cards)
             self.cards.remove(card)
 
     def add(self, cards: list[Card]):
