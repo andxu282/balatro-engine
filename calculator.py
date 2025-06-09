@@ -1,5 +1,5 @@
 from typing import Tuple
-from models import Card, Deck, Suit, Rank
+from models import Card, Deck, Suit, Rank, GameState
 from itertools import combinations
 from utils import get_score
 
@@ -23,7 +23,10 @@ dummy_deck = Deck([
 ])
 
 # Returns the expected value of this hand and the best combo to play from this hand
-def get_best_combo(hand: Deck, deck: Deck, num_hands: int, score: int) -> Deck:
+def get_best_combo(game_state: GameState, score: int) -> Deck:
+    hand = game_state.hand
+    deck = game_state.deck
+    num_hands = game_state.num_hands
     if (num_hands == 0 or len(hand.cards) == 0):
         return Deck([])
     best_combo = None
@@ -47,8 +50,9 @@ def get_best_combo(hand: Deck, deck: Deck, num_hands: int, score: int) -> Deck:
             score += play_combo(hand, combo_to_play)
             # add the five cards to replace the hand
             add_cards_to_hand(hand, deck, combo_from_deck.cards)
+            new_game_state = GameState(hand, deck, num_hands - 1, game_state.num_discards, game_state.score, game_state.current_score)
             # recurse to get the expected value of the next hand
-            expected_value = get_score(get_best_combo(hand, deck, num_hands - 1, score)) / len(list(combos_from_deck))
+            expected_value = get_score(get_best_combo(new_game_state, score)) / len(list(combos_from_deck))
             score += expected_value
             # add the five cards back to the deck
             deck.add(combo_from_deck.cards)
@@ -74,6 +78,9 @@ def add_cards_to_hand(hand: Deck, deck: Deck, cards: list[Card]):
 
 def main():
     num_hands = 2
+    num_discards = 0
+    score = 300
+    current_score = 0
     # preset starting hand
     hand = [
         Card(Suit.HEARTS, Rank.ACE),
@@ -93,10 +100,12 @@ def main():
         Card(Suit.SPADES, Rank.THREE),
         Card(Suit.SPADES, Rank.SIX),
     ]
-    combo = get_best_combo(Deck(hand), Deck(deck), num_hands, 0)
+
+    game_state = GameState(Deck(hand), Deck(deck), num_hands, num_discards, score, current_score)
+    combo = get_best_combo(game_state, game_state.current_score)
     print("best combo", combo)
     print("score", get_score(combo))
-    
+
 
 if __name__ == "__main__":
     main()

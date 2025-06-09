@@ -121,3 +121,16 @@ CHIPS_PER_CARD = {
     Rank.KING: 10,
     Rank.ACE: 11,
 }
+
+class GameState:
+    def __init__(self, hand: Deck, deck: Deck, num_hands: int, num_discards: int, score: int, current_score: int):
+        self.hand = hand
+        self.deck = deck
+        self.num_hands = num_hands
+        self.num_discards = num_discards
+        self.score = score
+        self.current_score = current_score
+
+    def __str__(self):
+        return f"GameState(hand={self.hand}, deck={self.deck}, num_hands={self.num_hands}, num_discards={self.num_discards}, score={self.score}, current_score={self.current_score})"
+    
