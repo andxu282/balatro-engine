@@ -8,10 +8,10 @@ def read_screen(image_path: str) -> GameState:
     image = image.convert("L")
     crop_coords = {
         'score': ([569, 591, 716, 679], 64, '--psm 6 digits'),
-        'current_score': ([315, 900, 832, 1007], 64, '--psm 6 digits'),
+        # 'current_score': ([315, 900, 832, 1007], 64, '--oem 3 digits'),
         'num_hands': ([455, 1531, 532, 1636], 64, '--psm 6 digits'),
         'num_discards': ([706, 1528, 779, 1632], 64, '--psm 6 digits'),
-        'hand_size': ([1899, 1771, 1928, 1808], 64, '--psm 6 digits'),
+        'hand_size': ([1895, 1765, 1930, 1810], 128, '--psm 6 digits'),
     }
 
     game_state_dict = {}
@@ -29,11 +29,11 @@ def read_screen(image_path: str) -> GameState:
 
     game_state = GameState(
         hand=hand,
-        deck=Deck(),
+        deck=Deck(cards=[]),
         num_hands=game_state_dict['num_hands'],
         num_discards=game_state_dict['num_discards'],
         score=game_state_dict['score'],
-        current_score=game_state_dict['current_score'],
+        current_score=0,
         hand_size=game_state_dict['hand_size']
     )
 
@@ -61,7 +61,7 @@ def read_cards(image: Image.Image) -> Deck:
 
     # hand = Deck([Card(card) for card in cards])  
 
-    return Deck()
+    return Deck(cards=[])
 
 def main():
     game_state = read_screen("test_assets/test1.png")

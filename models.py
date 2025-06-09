@@ -131,8 +131,7 @@ class GameState:
             num_discards: int,
             score: int,
             current_score: int,
-            hand_size: int,
-            num_cards_in_deck: int):
+            hand_size: int):
         self.hand = hand
         self.deck = deck
         self.num_hands = num_hands
