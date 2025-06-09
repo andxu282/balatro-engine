@@ -39,36 +39,26 @@ def get_best_combo(hand: Deck, deck: Deck, num_hands: int, score: int) -> Deck:
         combos_from_deck = list(combinations(deck.cards, 5))
         # if there are no combos of 5, there's less than 5 cards left in the deck
         if (len(list(combos_from_deck)) == 0):
-            combo_from_deck = Deck(deck.cards.copy())
+            combos_from_deck = [deck.cards.copy()]
+        # go through every possible combo of 5 cards to replace the hand
+        for combo_from_deck in combos_from_deck:
+            combo_from_deck = Deck(list(combo_from_deck))
+            # play the combo
             score += play_combo(hand, combo_to_play)
+            # add the five cards to replace the hand
             add_cards_to_hand(hand, deck, combo_from_deck.cards)
-            score += get_score(get_best_combo(hand, Deck([]), num_hands - 1, score))
+            # recurse to get the expected value of the next hand
+            expected_value = get_score(get_best_combo(hand, deck, num_hands - 1, score)) / len(list(combos_from_deck))
+            score += expected_value
+            # add the five cards back to the deck
             deck.add(combo_from_deck.cards)
             if (score > max_score):
                 max_score = score
                 best_combo = combo_to_play
+            score -= expected_value
+            score -= get_score(combo_to_play)
             hand.discard(combo_from_deck.cards)
             hand.add(combo_to_play.cards)
-        else:
-            # go through every possible combo of 5 cards to replace the hand
-            for combo_from_deck in combos_from_deck:
-                combo_from_deck = Deck(list(combo_from_deck))
-                # play the combo
-                score += play_combo(hand, combo_to_play)
-                # add the five cards to replace the hand
-                add_cards_to_hand(hand, deck, combo_from_deck.cards)
-                # recurse to get the expected value of the next hand
-                expected_value = get_score(get_best_combo(hand, deck, num_hands - 1, score)) / len(list(combos_from_deck))
-                score += expected_value
-                # add the five cards back to the deck
-                deck.add(combo_from_deck.cards)
-                if (score > max_score):
-                    max_score = score
-                    best_combo = combo_to_play
-                score -= expected_value
-                score -= get_score(combo_to_play)
-                hand.discard(combo_from_deck.cards)
-                hand.add(combo_to_play.cards)
     return best_combo
 
 
