@@ -81,6 +81,7 @@ def main():
     num_discards = 0
     score = 300
     current_score = 0
+    hand_size = 8
     # preset starting hand
     hand = [
         Card(Suit.HEARTS, Rank.ACE),
@@ -101,7 +102,7 @@ def main():
         Card(Suit.SPADES, Rank.SIX),
     ]
 
-    game_state = GameState(Deck(hand), Deck(deck), num_hands, num_discards, score, current_score)
+    game_state = GameState(Deck(hand), Deck(deck), num_hands, num_discards, score, current_score, hand_size)
     combo = get_best_combo(game_state, game_state.current_score)
     print("best combo", combo)
     print("score", get_score(combo))

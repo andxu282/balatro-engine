@@ -123,14 +123,25 @@ CHIPS_PER_CARD = {
 }
 
 class GameState:
-    def __init__(self, hand: Deck, deck: Deck, num_hands: int, num_discards: int, score: int, current_score: int):
+    def __init__(
+            self,
+            hand: Deck,
+            deck: Deck,
+            num_hands: int,
+            num_discards: int,
+            score: int,
+            current_score: int,
+            hand_size: int,
+            num_cards_in_deck: int):
         self.hand = hand
         self.deck = deck
         self.num_hands = num_hands
         self.num_discards = num_discards
         self.score = score
         self.current_score = current_score
+        self.hand_size = hand_size
+
 
     def __str__(self):
-        return f"GameState(hand={self.hand}, deck={self.deck}, num_hands={self.num_hands}, num_discards={self.num_discards}, score={self.score}, current_score={self.current_score})"
+        return f"GameState(hand={self.hand}, deck={self.deck}, num_hands={self.num_hands}, num_discards={self.num_discards}, score={self.score}, current_score={self.current_score}, hand_size={self.hand_size})"
     
